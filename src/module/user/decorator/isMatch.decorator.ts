@@ -3,7 +3,6 @@ import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorCon
 @ValidatorConstraint({ name: 'customText', async: false })
 export class matchProp implements ValidatorConstraintInterface {
     validate(text: string, args: ValidationArguments) {
-        console.log({ text, args });
         return text === args.object[args.constraints[0]]
 
     }

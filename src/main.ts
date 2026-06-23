@@ -2,6 +2,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
+const PORT = process.env.PORT ?? 3000;
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
@@ -11,6 +13,9 @@ async function bootstrap() {
               stopAtFirstError:true, // To return only the first error message if the property have more than one decorator 
               errorHttpStatusCode:401, // Control status code
           })) // to process at all APIs in this app <<GLOBAL>>
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(PORT,()=>{
+    console.log(`server is running now on port ${PORT}`);
+    
+  });
 }
 bootstrap();

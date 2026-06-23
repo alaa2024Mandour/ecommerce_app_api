@@ -1,34 +1,32 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
+import { Model } from "mongoose";
+import { User } from "../DB/models/user.model";
+import { zodCreateUserDTO } from "./validation/create-user.validation";
+import { InjectModel } from "@nestjs/mongoose";
+import { CreateUserDTO } from "./dto/create-user.dto";
+import UserRepository from "../DB/repositories/user.repository";
 
 @Injectable()
-export class UserService{
+export class UserService {
 
     constructor(
-        
-    ){}
+        private readonly userRepo: UserRepository
+    ) { }
 
-    users = [
-        {name:"a'laa",age:24},
-        {name:"nada",age:30},
-        {name:"mohammed",age:15},
-    ]
-
-    getAllUsers():object[]{
-        return this.users
+    async getAllUsers() {
+        return await this.userRepo.find({ filter: {} })
     }
 
-    createUser(data:{name:string,age:number}):object{
-        this.users.push(data)
-        return {message:"user created",users:this.users}
+    async createUser(data: CreateUserDTO) {
+        const { userName, email, phone, gender, password, cPassword } = data
+        let user =  await this.userRepo.findOne({filter:{email}})
+        if(user){
+            throw new ConflictException("this email already exist");
+        }
+        user = await this.userRepo.create({ userName, email, phone, gender, password })
+        return user
     }
 
-    deleteUser(name:string):object{
-        console.log(name)
-        const updatedUsers = this.users.filter((user)=>{
-            console.log(user.name)
-            return user.name!=name
-        })
-        
-        return {message:"user deleted successfully",users:updatedUsers}
-    }
+    // deleteUser(name:string):object{
+    // }
 }

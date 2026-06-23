@@ -13,21 +13,22 @@ import { createUserSchema, type zodCreateUserDTO } from "./validation/create-use
 //             stopAtFirstError:true, // To return only the first error message if the property have more than one decorator 
 //             errorHttpStatusCode:401, // Control status code
 //         })) // to validate all APIs in this controller
+
+
 export class UserController {
     constructor(
         private readonly userService: UserService
     ) { }
 
     @Get()
-    getAllUsers(): Object[] {
+    getAllUsers() {
         return this.userService.getAllUsers()
     }
 
     @Post()
     createUser(@Body()
     body: CreateUserDTO): object {
-        // return this.userService.createUser(age)
-        return body
+        return this.userService.createUser(body)
     }
 
     // @Post()
@@ -36,8 +37,8 @@ export class UserController {
     //     return body
     // }
 
-    @Delete()
-    deleteUser(@Body() body: { name: string }): object {
-        return this.userService.deleteUser(body.name)
-    }
+    // @Delete()
+    // deleteUser(@Body() body: { name: string }): object {
+    //     return this.userService.deleteUser(body.name)
+    // }
 }

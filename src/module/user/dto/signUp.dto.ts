@@ -1,9 +1,9 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, IsStrongPassword, Length, Validate, validate, ValidateIf } from "class-validator";
+import { IsEmail, IsEnum, IsNotEmpty, IsString, IsStrongPassword, Length, ValidateIf } from "class-validator";
 import { GenderEnum } from "src/common/enum/user.enum";
 import { IsMatch } from "../decorator/isMatch.decorator";
 
 
-export class CreateUserDTO {
+export class signUpDTO {
     @IsString({ message: "userName must be string" })
     @IsNotEmpty()
     @Length(2, 15)

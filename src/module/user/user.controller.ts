@@ -1,9 +1,7 @@
-import { Body, Controller, Delete, Get, ParseIntPipe, Post, UsePipes, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Get, Post} from "@nestjs/common";
 import { UserService } from "./user.service";
-import { CustomValidationPipe } from "src/common/pipes/user-custom.pipe";
-import { CreateUserDTO } from "./dto/create-user.dto";
-import { ZodValidationPipe } from "src/common/pipes/zode.validation.pipe";
-import { createUserSchema, type zodCreateUserDTO } from "./validation/create-user.validation";
+import { signUpDTO } from "./dto/signUp.dto";
+import { signInDTO } from "./dto/signIn.dto";
 
 @Controller("users")
 // @UsePipes(
@@ -25,10 +23,16 @@ export class UserController {
         return this.userService.getAllUsers()
     }
 
-    @Post()
-    createUser(@Body()
-    body: CreateUserDTO): object {
-        return this.userService.createUser(body)
+    @Post("/signup")
+    signUp(@Body()
+    body: signUpDTO): object {
+        return this.userService.signUp(body)
+    }
+
+    @Post("/signin")
+    signIn(@Body()
+    body: signInDTO): object {
+        return this.userService.signIn(body)
     }
 
     // @Post()

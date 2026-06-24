@@ -1,12 +1,7 @@
 import { ConflictException, Injectable } from "@nestjs/common";
-import { Model } from "mongoose";
-import { User } from "../DB/models/user.model";
-import { zodCreateUserDTO } from "./validation/create-user.validation";
-import { InjectModel } from "@nestjs/mongoose";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import UserRepository from "../DB/repositories/user.repository";
 import { EncryptionService } from "src/common/utils/security/encrypt.security";
-import { HashingService } from "src/common/utils/security/hash.security";
 
 @Injectable()
 export class UserService {
@@ -14,7 +9,6 @@ export class UserService {
     constructor(
         private readonly userRepo: UserRepository,
         private readonly encryptionService: EncryptionService,
-        private readonly hashingService: HashingService,
     ) { }
 
     async getAllUsers() {
@@ -33,7 +27,7 @@ export class UserService {
                 email, 
                 phone: this.encryptionService.encrypt(phone), 
                 gender, 
-                password : this.hashingService.Hash({plainText:password}) 
+                password 
             }
         )
         return user

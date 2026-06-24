@@ -5,6 +5,9 @@ import { UserModel } from "../DB/models/user.model";
 import UserRepository from "../DB/repositories/user.repository";
 import { EncryptionService } from "src/common/utils/security/encrypt.security";
 import { HashingService } from "src/common/utils/security/hash.security";
+import { EmailService } from "src/common/utils/email/email.service";
+import { createClient } from "redis";
+import { ConfigService } from "@nestjs/config";
 
 @Module({
     imports:[
@@ -17,7 +20,8 @@ import { HashingService } from "src/common/utils/security/hash.security";
         UserService,
         UserRepository,
         EncryptionService,
-        HashingService
+        HashingService,
+        EmailService,
     ],
     exports:[],
 })

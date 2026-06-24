@@ -2,6 +2,8 @@ import { ConflictException, Injectable } from "@nestjs/common";
 import { CreateUserDTO } from "./dto/create-user.dto";
 import UserRepository from "../DB/repositories/user.repository";
 import { EncryptionService } from "src/common/utils/security/encrypt.security";
+import { EmailService } from "src/common/utils/email/email.service";
+import { EventEnum } from "src/common/utils/email/event.enum";
 
 @Injectable()
 export class UserService {
@@ -9,6 +11,7 @@ export class UserService {
     constructor(
         private readonly userRepo: UserRepository,
         private readonly encryptionService: EncryptionService,
+        private readonly emailService: EmailService,
     ) { }
 
     async getAllUsers() {
@@ -30,6 +33,10 @@ export class UserService {
                 password 
             }
         )
+        this.emailService.sendEmailOTP({
+            email,
+            subject:EventEnum.confirmEmail
+        })
         return user
     }
 

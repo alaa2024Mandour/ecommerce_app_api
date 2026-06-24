@@ -1,0 +1,9 @@
+import {EventEmitter} from "node:events"
+import { EventEnum } from "./event.enum"
+
+export const eventEmitter = new EventEmitter
+
+eventEmitter.on(EventEnum.confirmEmail,async(fun)=>{
+    await fun()
+})
+

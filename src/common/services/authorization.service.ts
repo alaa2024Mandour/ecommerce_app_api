@@ -46,12 +46,18 @@ export class AuthorizationService{
         const  {secret_access_token,secret_refresh_token} = this.getSignature({prefix,token})
         const secret = tokenType == TokenEnum.access_token? secret_access_token: secret_refresh_token
 
-        const payload = this.jwtService.verify(token,{secret})
+        let payload ;
+        try {
+            payload = this.jwtService.verify(token,{secret})
+        } catch (error) {
+            throw new BadRequestException(error);
+            
+        }
         const user = await this.userRepo.findById(payload.sub)
         if(!user){
             throw new HttpException("User Not Found",404);
         }
-        
+
         return {payload,user}
     }
 }

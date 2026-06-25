@@ -8,9 +8,10 @@ import { HashingService } from "src/common/utils/security/hash.security";
 import { EmailService } from "src/common/utils/email/email.service";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
-import { AuthenticationMiddleware } from "src/common/middleware/authentication.middleware";
+import { AuthenticationMiddleware, TokenTypeMid } from "src/common/middleware/authentication.middleware";
 import { AuthorizationService } from "src/common/services/authorization.service";
 import { StringValue } from 'ms';
+import { TokenEnum } from "src/common/enum/token.enum";
 @Module({
     imports: [
         UserModel,
@@ -42,7 +43,7 @@ import { StringValue } from 'ms';
 export class UserModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer
-        .apply(AuthenticationMiddleware)
+        .apply(TokenTypeMid(TokenEnum.access_token),AuthenticationMiddleware)
         .forRoutes(UserController)
     }
 }

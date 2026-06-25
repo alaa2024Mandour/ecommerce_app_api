@@ -2,7 +2,6 @@ import { BadRequestException, ConflictException, Injectable } from "@nestjs/comm
 import { signUpDTO } from "./dto/signUp.dto";
 import UserRepository from "../DB/repositories/user.repository";
 import { EncryptionService } from "src/common/utils/security/encrypt.security";
-import { EmailService } from "src/common/utils/email/email.service";
 import { EventEnum } from "src/common/utils/email/event.enum";
 import { signInDTO } from "./dto/signIn.dto";
 import { HashingService } from "src/common/utils/security/hash.security";
@@ -10,6 +9,7 @@ import { JwtService } from "@nestjs/jwt";
 import { RoleEnum } from "src/common/enum/user.enum";
 import { ConfigService } from "@nestjs/config";
 import { randomUUID } from "crypto";
+import { EmailService } from "src/common/utils/email/email.service";
 
 @Injectable()
 export class UserService {

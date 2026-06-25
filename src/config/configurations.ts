@@ -19,7 +19,7 @@ export default () => ({
             refreshSecret: process.env.REFRESH_SECRET_KEY_ADMIN,
             prefix: process.env.PREFIX_ADMIN,
         },
-        expires_in:parseInt(process.env.JWT_EXPIRES_IN!)
+        expires_in:process.env.JWT_EXPIRES_IN!
     },
     redis: {
         url: process.env.REDIS_URL,

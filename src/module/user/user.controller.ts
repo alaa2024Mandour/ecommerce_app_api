@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Post} from "@nestjs/common";
+import { Body, Controller, Get, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { signUpDTO } from "./dto/signUp.dto";
 import { signInDTO } from "./dto/signIn.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
 
 @Controller("users")
 // @UsePipes(
@@ -18,7 +19,7 @@ export class UserController {
         private readonly userService: UserService
     ) { }
 
-    @Get()
+    @Get("/getUsers")
     getAllUsers() {
         return this.userService.getAllUsers()
     }
@@ -31,9 +32,18 @@ export class UserController {
 
     @Post("/signin")
     signIn(@Body()
-    body: signInDTO): object {
+    body: signInDTO
+    ): object {
         return this.userService.signIn(body)
     }
+
+
+    // @Post('upload')
+    // @UseInterceptors(FileInterceptor('file'))
+    // // uploadFile(@UploadedFile() file: Express) {
+    //     console.log(file);
+    // }
+
 
     // @Post()
     // createUser(@Body(new ZodValidationPipe(createUserSchema)) body:zodCreateUserDTO):zodCreateUserDTO{

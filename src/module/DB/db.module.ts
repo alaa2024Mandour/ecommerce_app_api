@@ -13,7 +13,6 @@ import { MongooseModule } from "@nestjs/mongoose";
                     ? configService.get<string>('database.onlineUri')
                     : configService.get<string>('database.localUri');
 
-                console.log(dbUri)
                 return {
                     uri: dbUri,
                 };

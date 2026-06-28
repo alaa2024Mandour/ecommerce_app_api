@@ -37,7 +37,6 @@ export class AuthorizationService{
 
         const [prefix, token] = authorization.split(" ")
 
-        console.log({ prefix, token });
 
         if (!prefix || !token) {
             throw new BadRequestException("token not exist")
@@ -51,9 +50,10 @@ export class AuthorizationService{
             payload = this.jwtService.verify(token,{secret})
         } catch (error) {
             throw new BadRequestException(error);
-            
         }
-        const user = await this.userRepo.findById(payload.sub)
+        
+        const user = await this.userRepo.findById({id:payload.sub})
+        
         if(!user){
             throw new HttpException("User Not Found",404);
         }

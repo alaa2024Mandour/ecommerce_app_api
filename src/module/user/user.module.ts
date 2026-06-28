@@ -40,10 +40,12 @@ import { TokenEnum } from "src/common/enum/token.enum";
     ],
     exports: [],
 })
-export class UserModule implements NestModule {
-    configure(consumer: MiddlewareConsumer) {
-        consumer
-        .apply(TokenTypeMid(TokenEnum.access_token),AuthenticationMiddleware)
-        .forRoutes(UserController)
-    }
-}
+export class UserModule {}
+
+// export class UserModule implements NestModule {
+//     configure(consumer: MiddlewareConsumer) {
+//         consumer
+//         .apply(TokenTypeMid(TokenEnum.access_token),AuthenticationMiddleware)
+//         .forRoutes(UserController)
+//     }
+// }

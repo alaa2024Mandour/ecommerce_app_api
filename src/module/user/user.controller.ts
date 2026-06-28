@@ -1,8 +1,17 @@
-import { Body, Controller, Get, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
+import { role_key } from './../../common/decorators/role.decorator';
+import { Body, Controller, Get, Post, SetMetadata, UseGuards } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { signUpDTO } from "./dto/signUp.dto";
 import { signInDTO } from "./dto/signIn.dto";
-import { FileInterceptor } from "@nestjs/platform-express";
+import { AuthorizationGuard } from "src/common/guards/authorization.guard";
+import { TokenEnum } from "src/common/enum/token.enum";
+import { TokenTypeDecorator } from "src/common/decorators/token_type.decorator";
+import { RoleDecorator } from "src/common/decorators/role.decorator";
+import { RoleEnum } from "src/common/enum/user.enum";
+import { RoleGuard } from "src/common/guards/role.guard";
+import { User } from "src/common/decorators/user.decorator";
+import type { UserDocument } from "../DB/models/user.model";
+import { Auth } from "src/common/decorators/auth.decorator";
 
 @Controller("users")
 // @UsePipes(
@@ -20,6 +29,7 @@ export class UserController {
     ) { }
 
     @Get("/getUsers")
+    @Auth({access_role:[RoleEnum.user]})
     getAllUsers() {
         return this.userService.getAllUsers()
     }
@@ -35,6 +45,13 @@ export class UserController {
     body: signInDTO
     ): object {
         return this.userService.signIn(body)
+    }
+
+    @Get("/getProfile")
+    @TokenTypeDecorator(TokenEnum.access_token)
+    @UseGuards(AuthorizationGuard)
+    getProfile(@User() user : UserDocument) {
+        return user
     }
 
 

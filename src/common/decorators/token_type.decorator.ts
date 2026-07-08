@@ -5,6 +5,5 @@ import { TokenEnum } from "../enum/token.enum"
 export const tokenType_key = "tokenType" 
 
 export const TokenTypeDecorator = (tokenType :  string = TokenEnum.access_token ) => {
-    console.log({tokenType});
     return SetMetadata(tokenType_key,tokenType)
 }

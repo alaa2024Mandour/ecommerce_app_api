@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { hashSync, compareSync } from "bcrypt"
+import { number } from "zod";
 
 @Injectable()
 export class HashingService {
@@ -19,7 +20,7 @@ export class HashingService {
         plainText,
         cipherText
     }: {
-        plainText: string,
+        plainText: string ,
         cipherText: string
     }): boolean {
         return compareSync(plainText, cipherText)

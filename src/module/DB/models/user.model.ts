@@ -49,6 +49,11 @@ export class User {
         trim: true
     })
     role: string;
+
+    @Prop({
+        type: Boolean,
+    })
+    confirmed:boolean
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)

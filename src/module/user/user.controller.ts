@@ -1,17 +1,26 @@
-import { role_key } from './../../common/decorators/role.decorator';
-import { Body, Controller, Get, Post, SetMetadata, UseGuards } from "@nestjs/common";
+import { StorageEnum } from './../../common/enum/multer.enum';
+import {
+    Controller,
+    Get,
+    Post,
+    UploadedFile,
+    UploadedFiles,
+    UseGuards,
+    UseInterceptors
+} from "@nestjs/common";
 import { UserService } from "./user.service";
-import { signUpDTO } from "./dto/signUp.dto";
-import { signInDTO } from "./dto/signIn.dto";
 import { AuthorizationGuard } from "src/common/guards/authorization.guard";
-import { TokenEnum } from "src/common/enum/token.enum";
-import { TokenTypeDecorator } from "src/common/decorators/token_type.decorator";
-import { RoleDecorator } from "src/common/decorators/role.decorator";
 import { RoleEnum } from "src/common/enum/user.enum";
-import { RoleGuard } from "src/common/guards/role.guard";
-import { User } from "src/common/decorators/user.decorator";
+import { GetUser } from "src/common/decorators/user.decorator";
 import type { UserDocument } from "../DB/models/user.model";
 import { Auth } from "src/common/decorators/auth.decorator";
+import {
+    FileFieldsInterceptor,
+    FileInterceptor,
+    FilesInterceptor
+} from '@nestjs/platform-express';
+import { MimeTypesEnum } from "src/common/enum/multer.enum";
+import { multerCloud } from "src/common/utils/multer/multer.utils";
 
 @Controller("users")
 // @UsePipes(
@@ -29,38 +38,76 @@ export class UserController {
     ) { }
 
     @Get("/getUsers")
-    @Auth({access_role:[RoleEnum.user]})
+    @Auth({ access_role: [RoleEnum.user] })
     getAllUsers() {
         return this.userService.getAllUsers()
     }
 
-    @Post("/signup")
-    signUp(@Body()
-    body: signUpDTO): object {
-        return this.userService.signUp(body)
-    }
-
-    @Post("/signin")
-    signIn(@Body()
-    body: signInDTO
-    ): object {
-        return this.userService.signIn(body)
-    }
-
     @Get("/getProfile")
-    @TokenTypeDecorator(TokenEnum.access_token)
+    @Auth({ access_role: [RoleEnum.user, RoleEnum.admin] })
     @UseGuards(AuthorizationGuard)
-    getProfile(@User() user : UserDocument) {
+    getProfile(@GetUser() user: UserDocument) {
         return user
     }
 
+    // ------------- upload single file from one field ----------------
+    @Post('upload/profilePic')
+    @Auth({ access_role: [RoleEnum.user, RoleEnum.admin] })
+    // @UseGuards(AuthorizationGuard)
+    @UseInterceptors(
+        FileInterceptor(
+            'profilePic',
+            multerCloud({ fileType: MimeTypesEnum.images })
+        ))
+    uploadProfilePic(
+        @GetUser() user: UserDocument,
+        @UploadedFile() file: Express.Multer.File
+    ) {
+        return this.userService.uploadProfilePic({
+            userId: user._id as unknown as string,
+            picture: file
+        })
+    }
 
-    // @Post('upload')
-    // @UseInterceptors(FileInterceptor('file'))
-    // // uploadFile(@UploadedFile() file: Express) {
-    //     console.log(file);
-    // }
+    // ------------- upload multi files from single field ----------------
+    @Post('upload/files')
+    @Auth({ access_role: [RoleEnum.user, RoleEnum.admin] })
+    @UseInterceptors(
+        FilesInterceptor(
+            'attachments',
+            3,
+            multerCloud({ storageType: StorageEnum.disk, fileType: MimeTypesEnum.images })
+        ))
+    uploadFiles(
+        @GetUser() user: UserDocument,
+        @UploadedFiles() files: Express.Multer.File[]
+    ) {
+        return this.userService.uploadFiles({
+            userId: user._id as unknown as string,
+            files
+        })
+    }
 
+
+    // ------------- upload multi fields files ----------------
+    @Post('upload/productPics')
+    @Auth({ access_role: [RoleEnum.user, RoleEnum.admin] })
+    @UseInterceptors(
+        FileFieldsInterceptor(
+            [
+                { name: "productImage", maxCount: 1 },
+                { name: "productSubImages", maxCount: 5 },
+            ],
+            multerCloud({ storageType: StorageEnum.disk, fileType: MimeTypesEnum.images })
+        ))
+    uploadProductImages(
+        @GetUser() user: UserDocument,
+        @UploadedFiles() files: { productImage: Express.Multer.File[], productSubImages?: Express.Multer.File[] }) {
+        return this.userService.uploadProductImages({
+            userId:user._id as unknown as string,
+            files
+        })
+    }
 
     // @Post()
     // createUser(@Body(new ZodValidationPipe(createUserSchema)) body:zodCreateUserDTO):zodCreateUserDTO{

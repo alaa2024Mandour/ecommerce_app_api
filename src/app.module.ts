@@ -3,10 +3,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserModule } from './module/user/user.module';
 import { ConfigModule } from '@nestjs/config';
-import configurations, * as AppConfigurations from "./config/configurations"
+import configurations from "./config/configurations"
 import { DBModule } from './module/DB/db.module';
 import { SecurityModule } from './common/utils/security/security.module';
 import { RedisModule } from './module/DB/redis/redis.module';
+import { AuthModule } from './module/auth/auth.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { RedisModule } from './module/DB/redis/redis.module';
     DBModule,
     UserModule,
     SecurityModule,
-    RedisModule
+    RedisModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [

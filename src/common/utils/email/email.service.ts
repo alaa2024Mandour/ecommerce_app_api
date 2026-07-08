@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import Mail from "nodemailer/lib/mailer";
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { eventEmitter } from "./email.events";
 import { EventEnum } from "./event.enum";
@@ -59,7 +59,7 @@ export class EmailService {
         const maxOTP = await this._redisService.get(this._redisService.max_tries_otp({ email }));
         if (maxOTP >= 3) {
             await this._redisService.set({ key: this._redisService.blocked_otp({ email }), value: 1, ttl: 60 })
-            throw new Error(`you have exceeded the maximum nuber of tries`);
+            throw new BadRequestException(`you have exceeded the maximum number of tries`);
         }
 
         const OTP = await this.generateOTP();

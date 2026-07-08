@@ -12,7 +12,7 @@ import { UserService } from "./user.service";
 import { AuthorizationGuard } from "src/common/guards/authorization.guard";
 import { RoleEnum } from "src/common/enum/user.enum";
 import { GetUser } from "src/common/decorators/user.decorator";
-import type { UserDocument } from "../DB/models/user.model";
+import type { UserDocument } from "../../DB/models/user.model";
 import { Auth } from "src/common/decorators/auth.decorator";
 import {
     FileFieldsInterceptor,

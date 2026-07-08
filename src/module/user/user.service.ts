@@ -1,4 +1,4 @@
-import UserRepository from "../DB/repositories/user.repository";
+import UserRepository from "../../DB/repositories/user.repository";
 import { S3Service } from "src/common/services/s3.service";
 import { Injectable } from "@nestjs/common";
 

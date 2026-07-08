@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { NextFunction, Response } from "express";
 import { TokenEnum } from '../enum/token.enum';
-import { AuthorizationService } from '../services/authorization.service';
+import { AuthorizationService } from '../authModule/authorization.service';
 
 export function TokenTypeMid(tokenType:TokenEnum){
     return (req: any, res: Response, next: NextFunction) => {

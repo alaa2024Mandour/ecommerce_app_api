@@ -1,6 +1,6 @@
 
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { AuthorizationService } from '../services/authorization.service';
+import { AuthorizationService } from '../authModule/authorization.service';
 import { Reflector } from '@nestjs/core';
 import { tokenType_key } from '../decorators/token_type.decorator';
 

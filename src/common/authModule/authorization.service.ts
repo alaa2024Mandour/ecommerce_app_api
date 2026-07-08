@@ -2,7 +2,7 @@ import { BadRequestException, HttpException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { TokenEnum } from "../enum/token.enum";
-import UserRepository from "src/module/DB/repositories/user.repository";
+import UserRepository from "src/DB/repositories/user.repository";
 
 @Injectable()
 export class AuthorizationService{
@@ -12,7 +12,7 @@ export class AuthorizationService{
         private readonly userRepo: UserRepository,
     ){}
 
-    getSignature({prefix, token}:{prefix:string,token:string}){
+    getSignature({prefix}:{prefix:string}){
         let secret_access_token = ""
         let secret_refresh_token = ""
 
@@ -42,7 +42,7 @@ export class AuthorizationService{
             throw new BadRequestException("token not exist")
         }
 
-        const  {secret_access_token,secret_refresh_token} = this.getSignature({prefix,token})
+        const  {secret_access_token,secret_refresh_token} = this.getSignature({prefix})
         const secret = tokenType == TokenEnum.access_token? secret_access_token: secret_refresh_token
 
         let payload ;

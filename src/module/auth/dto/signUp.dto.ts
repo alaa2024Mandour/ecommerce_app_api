@@ -1,5 +1,5 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsString, IsStrongPassword, Length, ValidateIf } from "class-validator";
-import { GenderEnum } from "src/common/enum/user.enum";
+import { GenderEnum, RoleEnum } from "src/common/enum/user.enum";
 import { IsMatch } from "../decorator/isMatch.decorator";
 
 
@@ -21,6 +21,11 @@ export class signUpDTO {
     @IsString({ message: "gender must be string" })
     @IsEnum(GenderEnum)
     gender: string;
+
+    @IsNotEmpty()
+    @IsString({ message: "role must be string" })
+    @IsEnum(RoleEnum)
+    role?: string;
 
     @IsStrongPassword()
     password: string;

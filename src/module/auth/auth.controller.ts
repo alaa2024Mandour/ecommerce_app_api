@@ -10,7 +10,7 @@ import { updatePasswordDTO } from "./dto/updatePassword.dto";
 import { Auth } from "src/common/decorators/auth.decorator";
 import { RoleEnum } from "src/common/enum/user.enum";
 import { GetUser } from "src/common/decorators/user.decorator";
-import type { UserDocument } from "../DB/models/user.model";
+import type { UserDocument } from "../../DB/models/user.model";
 import { forgotPasswordDTO } from "./dto/forgotPassword.dto";
 import { ConfirmEmailDTO } from "./dto/confirmEmail.dto";
 import { resendEmailDTO } from "./dto/resendEmail.dto";

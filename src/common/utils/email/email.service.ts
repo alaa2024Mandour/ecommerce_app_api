@@ -5,7 +5,7 @@ import { ConfigService } from "@nestjs/config";
 import { eventEmitter } from "./email.events";
 import { EventEnum } from "./event.enum";
 import { emailTemplate } from "./email.template";
-import { RedisService } from "src/module/DB/redis/redis.service";
+import { RedisService } from "src/DB/redis/redis.service";
 import { HashingService } from "../security/hash.security";
 
 @Injectable()

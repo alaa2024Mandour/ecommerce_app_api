@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable } from "@nestjs/common";
 import { signUpDTO } from "./dto/signUp.dto";
-import UserRepository from "../DB/repositories/user.repository";
+import UserRepository from "../../DB/repositories/user.repository";
 import { EncryptionService } from "src/common/utils/security/encrypt.security";
 import { EventEnum } from "src/common/utils/email/event.enum";
 import { signInDTO } from "./dto/signIn.dto";
@@ -11,10 +11,10 @@ import { ConfigService } from "@nestjs/config";
 import { randomUUID } from "crypto";
 import { EmailService } from "src/common/utils/email/email.service";
 import { updatePasswordDTO } from "./dto/updatePassword.dto";
-import { UserDocument } from "../DB/models/user.model";
+import { UserDocument } from "../../DB/models/user.model";
 import { forgotPasswordDTO } from "./dto/forgotPassword.dto";
 import { ConfirmEmailDTO } from "./dto/confirmEmail.dto";
-import { RedisService } from "../DB/redis/redis.service";
+import { RedisService } from "../../DB/redis/redis.service";
 import { eventEmitter } from "src/common/utils/email/email.events";
 import { emailTemplate } from "src/common/utils/email/email.template";
 import { resendEmailDTO } from "./dto/resendEmail.dto";
@@ -33,7 +33,7 @@ export class AuthService {
     ) { }
 
     async signUp(data: signUpDTO) {
-        const { userName, email, phone, gender, password, cPassword } = data
+        const { userName, email, phone, gender, password, cPassword, role } = data
         let user = await this.userRepo.findOne({ filter: { email } })
         if (user) {
             throw new ConflictException("this email already exist");
@@ -64,7 +64,8 @@ export class AuthService {
                 email,
                 phone: this.encryptionService.encrypt(phone),
                 gender,
-                password
+                password,
+                role: role? role : "user"
             }
         )
         return user
@@ -72,9 +73,9 @@ export class AuthService {
 
     async signIn(data: signInDTO) {
         const { email, password } = data
-        let user = await this.userRepo.findOne({ filter: { email } })
+        let user = await this.userRepo.findOne({ filter: { email, confirmed: true } })
         if (!user) {
-            throw new ConflictException("user not found");
+            throw new ConflictException("user not found or not confirmed yet");
         }
 
         if (!this.hashingService.Compare({ plainText: password, cipherText: user.password })) {

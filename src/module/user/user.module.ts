@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
-import { UserModel } from "../DB/models/user.model";
-import UserRepository from "../DB/repositories/user.repository";
-import { AuthorizationService } from "src/common/services/authorization.service";
+import { UserModel } from "../../DB/models/user.model";
+import UserRepository from "../../DB/repositories/user.repository";
+import { AuthorizationService } from "src/common/authModule/authorization.service";
 import { S3Service } from "src/common/services/s3.service";
 @Module({
     imports: [

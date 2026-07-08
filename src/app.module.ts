@@ -4,10 +4,12 @@ import { AppService } from './app.service';
 import { UserModule } from './module/user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import configurations from "./config/configurations"
-import { DBModule } from './module/DB/db.module';
+import { DBModule } from './DB/db.module';
 import { SecurityModule } from './common/utils/security/security.module';
-import { RedisModule } from './module/DB/redis/redis.module';
+import { RedisModule } from './DB/redis/redis.module';
 import { AuthModule } from './module/auth/auth.module';
+import { BrandModule } from './module/brand/brand.module';
+import { AuthorizationModule } from './common/authModule/authorization.module';
 
 @Module({
   imports: [
@@ -20,7 +22,9 @@ import { AuthModule } from './module/auth/auth.module';
     UserModule,
     SecurityModule,
     RedisModule,
-    AuthModule
+    AuthModule,
+    BrandModule,
+    AuthorizationModule
   ],
   controllers: [AppController],
   providers: [

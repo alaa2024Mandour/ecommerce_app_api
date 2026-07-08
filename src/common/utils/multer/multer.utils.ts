@@ -7,13 +7,11 @@ import { tmpdir } from 'node:os';
 
 export let multerCloud = ({
     storageType = StorageEnum.memory,
-    fileType = MimeTypesEnum.images,
-    maxFileSize=5 * 1024 * 1024
+    fileType = MimeTypesEnum.images
 }:
 {
     storageType?:StorageEnum,
-    fileType:String[],
-    maxFileSize?:number
+    fileType?:String[]
 }) => {
     let storage = storageType == StorageEnum.memory? multer.memoryStorage()
     : multer.diskStorage({

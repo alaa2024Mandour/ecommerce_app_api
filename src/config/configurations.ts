@@ -34,5 +34,6 @@ export default () => ({
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
         region: process.env.AWS_REGION,
         bucketName: process.env.AWS_S3_BUCKET_NAME,
+        s3FolderName:process.env.S3_MAIN_FOLDER_NAME
     },
 });

@@ -31,7 +31,7 @@ export class RoleGuard implements CanActivate {
         }
 
         if(! Roles.includes(req.user.role)){
-            throw new UnauthorizedException("you cant access this end point");
+            throw new UnauthorizedException("you can't access this end point");
         }
         
         return true

@@ -15,13 +15,13 @@ import { Upload } from '@aws-sdk/lib-storage';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { throws } from 'node:assert';
 import { ConfigService } from '@nestjs/config';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class S3Service {
 
     private client: S3Client
-
+    private mainFolderName = ""
     constructor(
         private readonly configService : ConfigService
     ) {
@@ -32,6 +32,7 @@ export class S3Service {
                 secretAccessKey: this.configService.get<string>("aws.secretAccessKey")!
             }
         })
+        this.mainFolderName = this.configService.get<string>("aws.s3FolderName")!
     }
 
 
@@ -49,7 +50,7 @@ export class S3Service {
         }): Promise<string> {
         const command = new PutObjectCommand({
             Bucket: this.configService.get<string>("aws.bucketName")!,
-            Key: `ecommerce_app/${path}/${randomUUID()}__${file.originalname}`,
+            Key: `${this.mainFolderName}/${path}/${randomUUID()}__${file.originalname}`,
             Body: store_type === StorageEnum.memory ? file.buffer : fs.createReadStream(file.path),
             ContentType: file.mimetype,
             ACL,
@@ -79,7 +80,7 @@ export class S3Service {
             client: this.client,
             params: {
                 Bucket: this.configService.get<string>("aws.bucketName")!,
-                Key: `social_media_app/${path}/${randomUUID()}__${file.originalname}`,
+                Key: `${this.mainFolderName}/${path}/${randomUUID()}__${file.originalname}`,
                 Body: store_type === StorageEnum.memory ? file.buffer : fs.createReadStream(file.path),
                 ContentType: file.mimetype,
                 ACL,
@@ -142,7 +143,7 @@ export class S3Service {
             expiresIn?: number
         }) {
 
-            const Key = `social_media_app/${path}/${randomUUID()}__${fileName}`;
+            const Key = `${this.mainFolderName}/${path}/${randomUUID()}__${fileName}`;
         const command = new PutObjectCommand({
             Bucket: this.configService.get<string>("aws.bucketName")!,
             Key,
@@ -183,7 +184,7 @@ export class S3Service {
     async getFiles(folderName:string){
         const command =new ListObjectsV2Command({
             Bucket: this.configService.get<string>("aws.bucketName"),
-            Prefix:`social_media_app/${folderName}`
+            Prefix:`${this.mainFolderName}/${folderName}`
         })
 
         return await this.client.send(command)
@@ -239,6 +240,11 @@ export class S3Service {
 
     async deleteFolder(folderName:string){
         const folderData = await this.getFiles(folderName);
+        console.log({folderData});
+        
+        if(!folderData.Contents || folderData.Contents.length ==0){
+            throw new BadRequestException("no content found")
+        }
         const data = folderData.Contents?.map((key)=>{
             return key.Key
         }) 

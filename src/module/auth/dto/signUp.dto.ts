@@ -1,6 +1,6 @@
 import { IsEmail, IsEnum, IsNotEmpty, IsString, IsStrongPassword, Length, ValidateIf } from "class-validator";
 import { GenderEnum, RoleEnum } from "src/common/enum/user.enum";
-import { IsMatch } from "../decorator/isMatch.decorator";
+import { IsMatch } from "../../../common/decorators/isMatch.decorator";
 
 
 export class signUpDTO {

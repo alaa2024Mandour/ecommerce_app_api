@@ -66,7 +66,9 @@ export const UserModel = MongooseModule.forFeatureAsync([{
     useFactory: (hashService:HashingService) => {
         const schema = UserSchema;
         schema.pre('save', function () {
-            this.password = hashService.Hash({plainText:this.password})
+            if(this.isModified("password")){
+                this.password = hashService.Hash({plainText:this.password})
+            }
         });
         return schema;
     },

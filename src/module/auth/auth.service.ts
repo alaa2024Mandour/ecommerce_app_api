@@ -160,14 +160,10 @@ export class AuthService {
             throw new BadRequestException("Invalid password");
         }
 
-        return await this.userRepo.findOneAndUpdate({
-            filter:{
-                email:user.email
-            },
-            updateData:{
-                password:this.hashingService.Hash({plainText:newPassword})
-            }
-        })
+        user.password = newPassword
+        await user.save()
+
+        return user
     }
 
     async forgotPassword(data : forgotPasswordDTO){
@@ -202,18 +198,17 @@ export class AuthService {
             throw new BadRequestException("invalid otp");
         }
 
-        const user = await this.userRepo.findOneAndUpdate({
+        const user = await this.userRepo.findOne({
             filter:{
                 email,
             },
-            updateData:{
-                password:this.hashingService.Hash({plainText:password})
-            }
         })
-
+        
         if(!user){
             throw new BadRequestException("user not exist");
         }
+        user.password=password;
+        await user?.save()
 
         await this.redisService.del(this.redisService.otp_key({email,subject:EventEnum.forgotPassword}))
         return user

@@ -6,7 +6,8 @@ import {
 } from "@nestjs/mongoose";
 import { 
     HydratedDocument, 
-    Types
+    Types,
+    UpdateQuery
 } from "mongoose";
 import slugify  from "slugify";
 import { User } from "./user.model";
@@ -42,14 +43,12 @@ export class Brand {
     })
     logo: string;
 
-
     @Prop({
         type: Types.ObjectId,
         ref:User.name,
         required: true,
     })
     createdBy: Types.ObjectId;
-
 
     @Prop({
         type: Types.ObjectId,
@@ -62,9 +61,34 @@ export class Brand {
         ref:User.name,
     })
     deletedBy: Types.ObjectId;
+
+    @Prop({
+        type: Boolean,
+    })
+    isDeleted: boolean;
+
+    @Prop({
+        type:String
+    })
+    s3FolderId:string
 }
 
 export const BrandSchema = SchemaFactory.createForClass(Brand)
 
 export type BrandDocument = HydratedDocument<Brand>
-export const BrandModel = MongooseModule.forFeature([{name:Brand.name,schema:BrandSchema}])
+export const BrandModel = MongooseModule.forFeatureAsync([{
+    name:Brand.name,
+    useFactory:function(){
+        const Brand = BrandSchema
+        Brand.pre(["updateOne","findOneAndUpdate"],async function(){
+            const updatedData =  this.getUpdate() as UpdateQuery<Brand>
+
+            if(updatedData?.name){
+                updatedData.slug = slugify(updatedData.name,{replacement:"_",trim:true,lower:true})
+            }
+
+        })
+
+        return Brand
+    }
+}])

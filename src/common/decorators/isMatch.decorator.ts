@@ -1,4 +1,10 @@
-import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
+import { 
+    registerDecorator, 
+    ValidationArguments, 
+    ValidationOptions, 
+    ValidatorConstraint, 
+    ValidatorConstraintInterface 
+} from "class-validator";
 
 @ValidatorConstraint({ name: 'customText', async: false })
 export class matchProp implements ValidatorConstraintInterface {

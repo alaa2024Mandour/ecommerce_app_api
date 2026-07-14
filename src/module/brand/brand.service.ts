@@ -40,10 +40,16 @@ export class BrandService {
 
         const folderId = randomUUID()
         console.log({ folderId });
-        const logoFile = await this.s3Service.uploadFile({
-            file: logo,
-            path: `brand/${folderId}`
-        })
+        let logoFile;
+
+        try {
+            logoFile = await this.s3Service.uploadFile({
+                file: logo,
+                path: `brand/${folderId}`
+            })
+        } catch (error) {
+            throw new InternalServerErrorException("failed to upload logo")
+        }
 
         const brand = await this.brandRepo.create({
             name,
@@ -122,8 +128,8 @@ export class BrandService {
                 _id: id,
                 createdBy: user._id
             },
-            updateData: { 
-                deletedBy:user._id,
+            updateData: {
+                deletedBy: user._id,
                 isDeleted: true
             }
         })
@@ -146,7 +152,7 @@ export class BrandService {
                     _id: id,
                     createdBy: user._id
                 },
-                options:{
+                options: {
                     session
                 }
             })
@@ -155,21 +161,21 @@ export class BrandService {
                 throw new BadRequestException("Brand Not exist");
             }
 
-            try{
+            try {
                 await this.s3Service.deleteFolder(`brand/${brand.s3FolderId}`)
             }
-            catch(error){
-                throw new InternalServerErrorException({message:"fail to delete brand files",error:error})
+            catch (error) {
+                throw new InternalServerErrorException({ message: "fail to delete brand files", error: error })
             }
 
             await session.commitTransaction()
             return brand
         }
-        catch(error) {
+        catch (error) {
             await session.abortTransaction()
             return error
         }
-        finally{
+        finally {
             await session.endSession()
         }
 

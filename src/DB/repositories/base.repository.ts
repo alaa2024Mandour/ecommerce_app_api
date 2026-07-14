@@ -84,7 +84,10 @@ export abstract class BaseRepository<TDocument> {
                 filter: any,
                 options?: QueryOptions<TDocument>
             }): Promise<HydratedDocument<TDocument> | null> {
-        return this.model.findOneAndDelete(filter, options)
+        return this.model.findOneAndDelete(
+            filter, 
+            options
+        )
     }
 
     async find(

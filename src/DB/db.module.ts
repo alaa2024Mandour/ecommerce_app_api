@@ -11,7 +11,7 @@ import { MongooseModule } from "@nestjs/mongoose";
                 const nodeEnv = process.env.NODE_ENV;
                 const dbUri = nodeEnv === 'production'
                     ? configService.get<string>('database.onlineUri')
-                    : configService.get<string>('database.localUri');
+                    : configService.get<string>('database.onlineUri');
 
                 return {
                     uri: dbUri,

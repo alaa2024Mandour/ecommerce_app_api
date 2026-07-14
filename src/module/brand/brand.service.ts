@@ -1,8 +1,9 @@
-import { 
-    BadGatewayException, 
-    BadRequestException, 
-    ConflictException, 
-    Injectable 
+import {
+    BadGatewayException,
+    BadRequestException,
+    ConflictException,
+    Injectable,
+    InternalServerErrorException
 } from '@nestjs/common';
 import BrandRepository from 'src/DB/repositories/brand.repository';
 import { CreateBrandDTO } from './dto/createBrand.dto';
@@ -14,39 +15,45 @@ import { GetPaginationDataDTO } from 'src/common/DTO/getPaginationData.dto';
 import { IdDto } from 'src/common/DTO/id.dto';
 import { randomUUID } from "crypto";
 import { ConfigService } from '@nestjs/config';
+import { InjectConnection } from '@nestjs/mongoose';
+import { Connection } from 'mongoose';
 
 @Injectable()
 export class BrandService {
-    
+
     constructor(
-        private readonly brandRepo : BrandRepository,
-        private readonly s3Service : S3Service,
-        private readonly configService:ConfigService,
-    ){}
+        private readonly brandRepo: BrandRepository,
+        private readonly s3Service: S3Service,
+        private readonly configService: ConfigService,
 
-    async createBrand(data:CreateBrandDTO,logo:Express.Multer.File,user:UserDocument){
-        const {name,slogan} = data
+        @InjectConnection()
+        private readonly connection: Connection
+    ) { }
 
-        if(await this.brandRepo.findOne({filter:{name}})){
+
+    async createBrand(data: CreateBrandDTO, logo: Express.Multer.File, user: UserDocument) {
+        const { name, slogan } = data
+
+        if (await this.brandRepo.findOne({ filter: { name } })) {
             throw new ConflictException("Brand Name Already Exist")
         }
 
         const folderId = randomUUID()
-        console.log({folderId});
+        console.log({ folderId });
         const logoFile = await this.s3Service.uploadFile({
-            file:logo,
-            path:`brand/${folderId}`
+            file: logo,
+            path: `brand/${folderId}`
         })
 
         const brand = await this.brandRepo.create({
             name,
             slogan,
-            logo:logoFile,
-            createdBy:user._id,
-            s3FolderId:String(folderId)
+            logo: logoFile,
+            createdBy: user._id,
+            s3FolderId: String(folderId)
         })
 
-        if(!brand){
+        if (!brand) {
             await this.s3Service.deleteFile(logoFile)
             throw new BadGatewayException("failed to create brand, try again later");
         }
@@ -54,93 +61,117 @@ export class BrandService {
         return brand
     }
 
-    async updateBrand(data:UpdateBrandDTO,id:Types.ObjectId ,user:UserDocument){
-        const {name,slogan} = data
+    async updateBrand(data: UpdateBrandDTO, id: Types.ObjectId, user: UserDocument) {
+        const { name, slogan } = data
         let brand = await this.brandRepo.findOne({
-            filter:{
-                _id:id,
-                createdBy:user._id
+            filter: {
+                _id: id,
+                createdBy: user._id
             }
         })
 
-        if(!brand){
+        if (!brand) {
             throw new BadRequestException("Brand Id Not Exist")
         }
 
-        if(name&& name == brand.name){
+        if (name && name == brand.name) {
             throw new ConflictException("name not changed please make any change to update it")
         }
-        if(slogan&& slogan == brand.slogan){
+        if (slogan && slogan == brand.slogan) {
             throw new ConflictException("slogan not changed please make any change to update it")
         }
 
-        if(name && await this.brandRepo.findOne({filter:{name}})){
+        if (name && await this.brandRepo.findOne({ filter: { name } })) {
             throw new ConflictException("Brand Name Already Exist")
         }
 
         brand = await this.brandRepo.findOneAndUpdate({
-            filter:{_id:id},
-            updateData:{
-                name:name?name:brand.name,
-                slogan:slogan?slogan:brand.slogan,
+            filter: { _id: id },
+            updateData: {
+                name: name ? name : brand.name,
+                slogan: slogan ? slogan : brand.slogan,
             }
         })
 
         return brand
     }
 
-    async getAllBrands(query:GetPaginationDataDTO){
-        const {page,limit,search} = query
-        
+    async getAllBrands(query: GetPaginationDataDTO) {
+        const { page, limit, search } = query
+
         const data = await this.brandRepo.paginate({
             page,
             limit,
-            search:{
-                $or:search?[
-                    {name:{$regex:search,$options:"i"}},
-                    {slogan:{$regex:search,$options:"i"}},
-                ]:[],
-                isDeleted:{$ne:true}
+            search: {
+                $or: search ? [
+                    { name: { $regex: search, $options: "i" } },
+                    { slogan: { $regex: search, $options: "i" } },
+                ] : [],
+                isDeleted: { $ne: true }
             }
         })
 
         return data
     }
 
-    async softDeleteBrand(user:UserDocument,params:IdDto){
-        const {id} = params
+    async softDeleteBrand(user: UserDocument, params: IdDto) {
+        const { id } = params
 
         const brand = await this.brandRepo.findOneAndUpdate({
-            filter:{
-                _id:id,
-                createdBy:user._id
+            filter: {
+                _id: id,
+                createdBy: user._id
             },
-            updateData:{isDeleted:true}
+            updateData: { 
+                deletedBy:user._id,
+                isDeleted: true
+            }
         })
 
-        if(!brand){
+        if (!brand) {
             throw new BadRequestException("Brand Not exist");
         }
 
         return brand
     }
 
-    async hardDeleteBrand(user:UserDocument,params:IdDto){
-        const {id} = params
+    async hardDeleteBrand(user: UserDocument, params: IdDto) {
+        const { id } = params
+        const session = await this.connection.startSession()
 
-        const brand = await this.brandRepo.findOneAndDelete({
-            filter:{
-                _id:id,
-                createdBy:user._id
+        session.startTransaction()
+        try {
+            const brand = await this.brandRepo.findOneAndDelete({
+                filter: {
+                    _id: id,
+                    createdBy: user._id
+                },
+                options:{
+                    session
+                }
+            })
+
+            if (!brand) {
+                throw new BadRequestException("Brand Not exist");
             }
-        })
 
-        if(!brand){
-            throw new BadRequestException("Brand Not exist");
+            try{
+                await this.s3Service.deleteFolder(`brand/${brand.s3FolderId}`)
+            }
+            catch(error){
+                throw new InternalServerErrorException({message:"fail to delete brand files",error:error})
+            }
+
+            await session.commitTransaction()
+            return brand
+        }
+        catch(error) {
+            await session.abortTransaction()
+            return error
+        }
+        finally{
+            await session.endSession()
         }
 
-        await this.s3Service.deleteFolder(`brand/${brand.s3FolderId}`)
-
-        return brand
     }
 }
